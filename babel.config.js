@@ -1,11 +1,9 @@
-// babel.config.js
 module.exports = function (api) {
   api.cache(true);
   return {
     presets: ["babel-preset-expo"],
     plugins: [
-      // Temporariamente removido: "nativewind/babel",
-      "expo-router/babel",
+      // "nativewind/babel", // Você pode descomentar isso se estiver usando nativewind
     ],
   };
 };
