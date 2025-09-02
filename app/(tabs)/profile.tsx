@@ -10,11 +10,12 @@ import {
   ActivityIndicator,
   TextInput,
   Modal,
+  StyleSheet, // Importa StyleSheet
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
 import { useProfile, useUpdateProfile, usePresets } from '../../hooks';
-import { ScoreGauge } from '../../components/ScoreGauge';
+import { router } from 'expo-router';
 
 const ProfileScreen = () => {
   const { signOut, user } = useAuth();
@@ -93,9 +94,9 @@ const ProfileScreen = () => {
 
   if (profileLoading) {
     return (
-      <SafeAreaView className="flex-1 bg-slate-900 justify-center items-center">
+      <SafeAreaView style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#22d3ee" />
-        <Text className="text-slate-200 mt-4">Carregando perfil...</Text>
+        <Text style={styles.loadingText}>Carregando perfil...</Text>
       </SafeAreaView>
     );
   }
@@ -118,52 +119,46 @@ const ProfileScreen = () => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-slate-900">
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+    <SafeAreaView style={styles.container}>
+      <ScrollView showsVerticalScrollIndicator={false}>
         {/* Header do Perfil */}
-        <View className="bg-slate-800 p-6 mb-4">
-          <View className="items-center">
-            {/* Avatar */}
-            <View className="w-20 h-20 bg-cyan-400 rounded-full items-center justify-center mb-4">
-              <Text className="text-slate-900 text-2xl font-bold">
+        <View style={styles.profileHeader}>
+          <View style={styles.avatarContainer}>
+            <View style={styles.avatar}>
+              <Text style={styles.avatarText}>
                 {profile?.name?.charAt(0).toUpperCase() || 'U'}
               </Text>
             </View>
             
-            {/* Nome e Email */}
-            <Text className="text-slate-200 text-xl font-bold">{profile?.name}</Text>
-            <Text className="text-slate-400 text-base mt-1">{user?.email}</Text>
+            <Text style={styles.profileName}>{profile?.name}</Text>
+            <Text style={styles.profileEmail}>{user?.email}</Text>
             
-            {/* Localização */}
             {profile?.location && (
-              <View className="flex-row items-center mt-2">
+              <View style={styles.locationContainer}>
                 <Ionicons name="location-outline" size={16} color="#94a3b8" />
-                <Text className="text-slate-400 text-sm ml-1">{profile.location}</Text>
+                <Text style={styles.locationText}>{profile.location}</Text>
               </View>
             )}
           </View>
 
-          {/* Bio */}
           {profile?.bio && (
-            <Text className="text-slate-300 text-center mt-4 italic">
+            <Text style={styles.bioText}>
               "{profile.bio}"
             </Text>
           )}
 
-          {/* Botão Editar */}
           <TouchableOpacity
-            className="bg-cyan-400 rounded-lg py-3 mt-4"
+            style={styles.editProfileButton}
             onPress={() => setShowEditModal(true)}
           >
-            <Text className="text-slate-900 text-center font-bold">Editar Perfil</Text>
+            <Text style={styles.editProfileButtonText}>Editar Perfil</Text>
           </TouchableOpacity>
         </View>
 
         {/* Informações do Surfista */}
-        <View className="bg-slate-800 rounded-lg mx-4 p-4 mb-4">
-          <Text className="text-slate-200 text-lg font-bold mb-4">Informações de Surf</Text>
-          
-          <View className="space-y-3">
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Informações de Surf</Text>
+          <View style={styles.infoRowsContainer}>
             <InfoRow 
               icon="trending-up-outline" 
               label="Nível" 
@@ -178,10 +173,9 @@ const ProfileScreen = () => {
         </View>
 
         {/* Estatísticas */}
-        <View className="bg-slate-800 rounded-lg mx-4 p-4 mb-4">
-          <Text className="text-slate-200 text-lg font-bold mb-4">Suas Estatísticas</Text>
-          
-          <View className="flex-row justify-around">
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Suas Estatísticas</Text>
+          <View style={styles.statsContainer}>
             <StatCard 
               title="Presets" 
               value={presets?.length || 0} 
@@ -201,37 +195,43 @@ const ProfileScreen = () => {
         </View>
 
         {/* Menu de Opções */}
-        <View className="bg-slate-800 rounded-lg mx-4 p-4 mb-4">
-          <Text className="text-slate-200 text-lg font-bold mb-4">Configurações</Text>
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Configurações</Text>
           
-          <TouchableOpacity className="flex-row items-center justify-between py-3 border-b border-slate-700">
-            <View className="flex-row items-center">
+          <TouchableOpacity 
+            style={styles.menuItem}
+            onPress={() => router.push('/(tabs)/presets')}
+          >
+            <View style={styles.menuItemContent}>
               <Ionicons name="bookmarks-outline" size={20} color="#22d3ee" />
-              <Text className="text-slate-200 ml-3">Meus Presets</Text>
+              <Text style={styles.menuItemText}>Meus Presets</Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color="#94a3b8" />
           </TouchableOpacity>
 
-          <TouchableOpacity className="flex-row items-center justify-between py-3 border-b border-slate-700">
-            <View className="flex-row items-center">
+          <TouchableOpacity 
+            style={styles.menuItem}
+            onPress={() => router.push('/(tabs)/spots-preferences')}
+          >
+            <View style={styles.menuItemContent}>
               <Ionicons name="location-outline" size={20} color="#22d3ee" />
-              <Text className="text-slate-200 ml-3">Picos e Preferências</Text>
+              <Text style={styles.menuItemText}>Picos e Preferências</Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color="#94a3b8" />
           </TouchableOpacity>
 
-          <TouchableOpacity className="flex-row items-center justify-between py-3 border-b border-slate-700">
-            <View className="flex-row items-center">
+          <TouchableOpacity style={styles.menuItem}>
+            <View style={styles.menuItemContent}>
               <Ionicons name="notifications-outline" size={20} color="#22d3ee" />
-              <Text className="text-slate-200 ml-3">Notificações</Text>
+              <Text style={styles.menuItemText}>Notificações</Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color="#94a3b8" />
           </TouchableOpacity>
 
-          <TouchableOpacity className="flex-row items-center justify-between py-3">
-            <View className="flex-row items-center">
+          <TouchableOpacity style={[styles.menuItem, { borderBottomWidth: 0 }]}>
+            <View style={styles.menuItemContent}>
               <Ionicons name="help-circle-outline" size={20} color="#22d3ee" />
-              <Text className="text-slate-200 ml-3">Ajuda e Suporte</Text>
+              <Text style={styles.menuItemText}>Ajuda e Suporte</Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color="#94a3b8" />
           </TouchableOpacity>
@@ -239,12 +239,12 @@ const ProfileScreen = () => {
 
         {/* Botão Sair */}
         <TouchableOpacity
-          className="bg-red-600 rounded-lg mx-4 p-4 mb-8"
+          style={styles.signOutButton}
           onPress={handleSignOut}
         >
-          <View className="flex-row items-center justify-center">
+          <View style={styles.signOutButtonContent}>
             <Ionicons name="log-out-outline" size={20} color="white" />
-            <Text className="text-white font-bold ml-2">Sair da Conta</Text>
+            <Text style={styles.signOutButtonText}>Sair da Conta</Text>
           </View>
         </TouchableOpacity>
       </ScrollView>
@@ -255,12 +255,12 @@ const ProfileScreen = () => {
         animationType="slide"
         presentationStyle="pageSheet"
       >
-        <SafeAreaView className="flex-1 bg-slate-900">
-          <View className="flex-row items-center justify-between p-4 border-b border-slate-800">
+        <SafeAreaView style={styles.modalContainer}>
+          <View style={styles.modalHeader}>
             <TouchableOpacity onPress={() => setShowEditModal(false)}>
-              <Text className="text-cyan-400 text-base">Cancelar</Text>
+              <Text style={styles.modalHeaderButtonText}>Cancelar</Text>
             </TouchableOpacity>
-            <Text className="text-slate-200 text-lg font-bold">Editar Perfil</Text>
+            <Text style={styles.modalTitle}>Editar Perfil</Text>
             <TouchableOpacity 
               onPress={handleSaveProfile}
               disabled={updating}
@@ -268,27 +268,25 @@ const ProfileScreen = () => {
               {updating ? (
                 <ActivityIndicator size="small" color="#22d3ee" />
               ) : (
-                <Text className="text-cyan-400 text-base font-bold">Salvar</Text>
+                <Text style={[styles.modalHeaderButtonText, { fontWeight: 'bold' }]}>Salvar</Text>
               )}
             </TouchableOpacity>
           </View>
 
-          <ScrollView className="flex-1 p-4">
-            <View className="space-y-4">
+          <ScrollView style={styles.modalScrollView}>
+            <View style={styles.formContainer}>
               <FormField
                 label="Nome"
                 value={editForm.name}
                 onChangeText={(text) => setEditForm(prev => ({ ...prev, name: text }))}
                 placeholder="Seu nome completo"
               />
-
               <FormField
                 label="Localização"
                 value={editForm.location}
                 onChangeText={(text) => setEditForm(prev => ({ ...prev, location: text }))}
                 placeholder="Cidade, Estado"
               />
-
               <FormField
                 label="Bio"
                 value={editForm.bio}
@@ -297,44 +295,46 @@ const ProfileScreen = () => {
                 multiline
                 numberOfLines={3}
               />
-
               {/* Nível de Surf */}
               <View>
-                <Text className="text-slate-300 text-base font-medium mb-2">Nível de Surf</Text>
-                <View className="flex-row space-x-2">
+                <Text style={styles.formLabel}>Nível de Surf</Text>
+                <View style={styles.optionsContainer}>
                   {['iniciante', 'intermediario', 'avancado'].map((level) => (
                     <TouchableOpacity
                       key={level}
-                      className={`px-4 py-2 rounded-lg ${
-                        editForm.surf_level === level ? 'bg-cyan-400' : 'bg-slate-800'
-                      }`}
+                      style={[
+                        styles.optionButton,
+                        editForm.surf_level === level && styles.optionButtonSelected
+                      ]}
                       onPress={() => setEditForm(prev => ({ ...prev, surf_level: level }))}
                     >
-                      <Text className={`text-sm font-medium ${
-                        editForm.surf_level === level ? 'text-slate-900' : 'text-slate-300'
-                      }`}>
+                      <Text style={[
+                        styles.optionButtonText,
+                        editForm.surf_level === level && styles.optionButtonTextSelected
+                      ]}>
                         {getSurfLevelLabel(level)}
                       </Text>
                     </TouchableOpacity>
                   ))}
                 </View>
               </View>
-
               {/* Stance */}
               <View>
-                <Text className="text-slate-300 text-base font-medium mb-2">Stance</Text>
-                <View className="flex-row space-x-2">
+                <Text style={styles.formLabel}>Stance</Text>
+                <View style={styles.optionsContainer}>
                   {['regular', 'goofy'].map((stance) => (
                     <TouchableOpacity
                       key={stance}
-                      className={`px-4 py-2 rounded-lg ${
-                        editForm.stance === stance ? 'bg-cyan-400' : 'bg-slate-800'
-                      }`}
+                      style={[
+                        styles.optionButton,
+                        editForm.stance === stance && styles.optionButtonSelected
+                      ]}
                       onPress={() => setEditForm(prev => ({ ...prev, stance: stance }))}
                     >
-                      <Text className={`text-sm font-medium ${
-                        editForm.stance === stance ? 'text-slate-900' : 'text-slate-300'
-                      }`}>
+                      <Text style={[
+                        styles.optionButtonText,
+                        editForm.stance === stance && styles.optionButtonTextSelected
+                      ]}>
                         {getStanceLabel(stance)}
                       </Text>
                     </TouchableOpacity>
@@ -350,43 +350,34 @@ const ProfileScreen = () => {
 };
 
 // Componentes auxiliares
-const InfoRow = ({ icon, label, value }: { icon: string; label: string; value: string }) => (
-  <View className="flex-row items-center">
-    <Ionicons name={icon as any} size={20} color="#22d3ee" />
-    <Text className="text-slate-400 ml-3 flex-1">{label}:</Text>
-    <Text className="text-slate-200 font-medium">{value}</Text>
+const InfoRow = ({ icon, label, value }: { icon: any; label: string; value: string }) => (
+  <View style={styles.infoRow}>
+    <Ionicons name={icon} size={20} color="#22d3ee" />
+    <Text style={styles.infoLabel}>{label}:</Text>
+    <Text style={styles.infoValue}>{value}</Text>
   </View>
 );
 
-const StatCard = ({ title, value, icon }: { title: string; value: number | string; icon: string }) => (
-  <View className="items-center">
-    <View className="w-12 h-12 bg-cyan-400 rounded-full items-center justify-center mb-2">
-      <Ionicons name={icon as any} size={20} color="#0f172a" />
+const StatCard = ({ title, value, icon }: { title: string; value: number | string; icon: any }) => (
+  <View style={styles.statCard}>
+    <View style={styles.statIconContainer}>
+      <Ionicons name={icon} size={20} color="#0f172a" />
     </View>
-    <Text className="text-slate-200 text-xl font-bold">{value}</Text>
-    <Text className="text-slate-400 text-xs">{title}</Text>
+    <Text style={styles.statValue}>{value}</Text>
+    <Text style={styles.statTitle}>{title}</Text>
   </View>
 );
 
 const FormField = ({ 
-  label, 
-  value, 
-  onChangeText, 
-  placeholder, 
-  multiline = false, 
-  numberOfLines = 1 
+  label, value, onChangeText, placeholder, multiline = false, numberOfLines = 1 
 }: {
-  label: string;
-  value: string;
-  onChangeText: (text: string) => void;
-  placeholder: string;
-  multiline?: boolean;
-  numberOfLines?: number;
+  label: string; value: string; onChangeText: (text: string) => void;
+  placeholder: string; multiline?: boolean; numberOfLines?: number;
 }) => (
   <View>
-    <Text className="text-slate-300 text-base font-medium mb-2">{label}</Text>
+    <Text style={styles.formLabel}>{label}</Text>
     <TextInput
-      className="bg-slate-800 text-slate-200 rounded-lg px-4 py-3 text-base"
+      style={styles.textInput}
       placeholder={placeholder}
       placeholderTextColor="#94a3b8"
       value={value}
@@ -397,5 +388,53 @@ const FormField = ({
     />
   </View>
 );
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: '#0f172a' },
+  loadingContainer: { flex: 1, backgroundColor: '#0f172a', justifyContent: 'center', alignItems: 'center' },
+  loadingText: { color: '#e2e8f0', marginTop: 16 },
+  profileHeader: { backgroundColor: '#1e293b', padding: 24, marginBottom: 16 },
+  avatarContainer: { alignItems: 'center' },
+  avatar: { width: 80, height: 80, backgroundColor: '#22d3ee', borderRadius: 40, alignItems: 'center', justifyContent: 'center', marginBottom: 16 },
+  avatarText: { color: '#0f172a', fontSize: 32, fontWeight: 'bold' },
+  profileName: { color: '#e2e8f0', fontSize: 24, fontWeight: 'bold' },
+  profileEmail: { color: '#94a3b8', fontSize: 16, marginTop: 4 },
+  locationContainer: { flexDirection: 'row', alignItems: 'center', marginTop: 8 },
+  locationText: { color: '#94a3b8', fontSize: 14, marginLeft: 4 },
+  bioText: { color: '#cbd5e1', textAlign: 'center', marginTop: 16, fontStyle: 'italic' },
+  editProfileButton: { backgroundColor: '#22d3ee', borderRadius: 8, paddingVertical: 12, marginTop: 16 },
+  editProfileButtonText: { color: '#0f172a', textAlign: 'center', fontWeight: 'bold' },
+  card: { backgroundColor: '#1e293b', borderRadius: 8, marginHorizontal: 16, padding: 16, marginBottom: 16 },
+  cardTitle: { color: '#e2e8f0', fontSize: 18, fontWeight: 'bold', marginBottom: 16 },
+  infoRowsContainer: { gap: 12 },
+  infoRow: { flexDirection: 'row', alignItems: 'center' },
+  infoLabel: { color: '#94a3b8', marginLeft: 12, flex: 1 },
+  infoValue: { color: '#e2e8f0', fontWeight: '500' },
+  statsContainer: { flexDirection: 'row', justifyContent: 'space-around' },
+  statCard: { alignItems: 'center' },
+  statIconContainer: { width: 48, height: 48, backgroundColor: '#22d3ee', borderRadius: 24, alignItems: 'center', justifyContent: 'center', marginBottom: 8 },
+  statValue: { color: '#e2e8f0', fontSize: 20, fontWeight: 'bold' },
+  statTitle: { color: '#94a3b8', fontSize: 12 },
+  menuItem: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#334155' },
+  menuItemContent: { flexDirection: 'row', alignItems: 'center' },
+  menuItemText: { color: '#e2e8f0', marginLeft: 12 },
+  signOutButton: { backgroundColor: '#dc2626', borderRadius: 8, margin: 16, padding: 16 },
+  signOutButtonContent: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center' },
+  signOutButtonText: { color: 'white', fontWeight: 'bold', marginLeft: 8 },
+  // Modal Styles
+  modalContainer: { flex: 1, backgroundColor: '#0f172a' },
+  modalHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 16, borderBottomWidth: 1, borderBottomColor: '#1e293b' },
+  modalHeaderButtonText: { color: '#22d3ee', fontSize: 16 },
+  modalTitle: { color: '#e2e8f0', fontSize: 18, fontWeight: 'bold' },
+  modalScrollView: { flex: 1, padding: 16 },
+  formContainer: { gap: 16 },
+  formLabel: { color: '#cbd5e1', fontSize: 16, fontWeight: '500', marginBottom: 8 },
+  textInput: { backgroundColor: '#1e293b', color: '#e2e8f0', borderRadius: 8, padding: 12, fontSize: 16 },
+  optionsContainer: { flexDirection: 'row', gap: 8 },
+  optionButton: { paddingHorizontal: 16, paddingVertical: 8, borderRadius: 8, backgroundColor: '#1e293b' },
+  optionButtonSelected: { backgroundColor: '#22d3ee' },
+  optionButtonText: { color: '#cbd5e1', fontSize: 14, fontWeight: '500' },
+  optionButtonTextSelected: { color: '#0f172a' },
+});
 
 export default ProfileScreen;
