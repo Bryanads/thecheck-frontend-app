@@ -1,25 +1,29 @@
 // app/index.tsx
-import { Redirect } from 'expo-router';
+import { router } from 'expo-router';
+import React, { useEffect } from 'react';
 import { View, ActivityIndicator } from 'react-native';
 import { useAuth } from '../context/AuthContext';
 
 export default function Index() {
   const { user, loading } = useAuth();
 
-  // Enquanto carrega
-  if (loading) {
-    return (
-      <View className="flex-1 justify-center items-center bg-slate-900">
-        <ActivityIndicator size="large" color="#22d3ee" />
-      </View>
-    );
-  }
+  useEffect(() => {
+    // Aguarda o fim do carregamento para decidir para onde redirecionar
+    if (!loading) {
+      if (user) {
+        // Se há um usuário, redireciona para a tela principal (recomendações)
+        router.replace('/recommendations');
+      } else {
+        // Se não há usuário, redireciona para a tela de autenticação
+        router.replace('/auth');
+      }
+    }
+  }, [user, loading, router]); // Adiciona dependências para re-executar quando mudarem
 
-  // Se não houver usuário → vai pra tela de login
-  if (!user) {
-    return <Redirect href="/auth" />;
-  }
-
-  // Se houver usuário → vai pra tela principal (tabs)
-  return <Redirect href="/recommendations" />;
+  // Sempre exibe um indicador de carregamento enquanto a lógica de redirecionamento é processada
+  return (
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0f172a' }}>
+      <ActivityIndicator size="large" color="#22d3ee" />
+    </View>
+  );
 }

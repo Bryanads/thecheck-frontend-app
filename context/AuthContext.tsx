@@ -4,6 +4,7 @@ import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '../api/supabase';
 import { Profile } from '../types';
 import * as api from '../api';
+import { router } from 'expo-router';
 
 interface AuthContextType {
   user: User | null;
@@ -94,11 +95,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
         if (session?.user) {
           await fetchProfile(session.user.id);
+          router.replace('/'); // Redireciona para a home
         } else {
           setProfile(null);
         }
 
-        if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED') {
+        if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED') {
           setLoading(false);
         }
       }
