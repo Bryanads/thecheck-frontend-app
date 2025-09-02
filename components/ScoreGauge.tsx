@@ -1,6 +1,6 @@
 // components/ScoreGauge.tsx
 import React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 
 interface ScoreGaugeProps {
   score: number;
@@ -9,17 +9,31 @@ interface ScoreGaugeProps {
 
 export const ScoreGauge = ({ score, size = 80 }: ScoreGaugeProps) => {
   const getColor = () => {
-    if (score >= 75) return 'text-green-500'; // #22c55e
-    if (score >= 50) return 'text-yellow-500'; // #eab308
-    return 'text-red-500'; // #ef4444
+    if (score >= 75) return '#22c55e'; // Verde
+    if (score >= 50) return '#eab308'; // Amarelo
+    return '#ef4444'; // Vermelho
+  };
+
+  const containerStyle = {
+    width: size,
+    height: size,
+    borderRadius: size / 2,
+    borderWidth: size / 10,
+    borderColor: '#1e293b',
+    backgroundColor: '#334155',
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+  };
+
+  const textStyle = {
+    fontSize: size / 3,
+    fontWeight: 'bold' as const,
+    color: getColor(),
   };
 
   return (
-    <View
-      className="items-center justify-center rounded-full bg-slate-700"
-      style={{ width: size, height: size, borderWidth: size / 10, borderColor: '#1e293b' }}
-    >
-      <Text className={`text-2xl font-bold ${getColor()}`}>{Math.round(score)}</Text>
+    <View style={containerStyle}>
+      <Text style={textStyle}>{Math.round(score)}</Text>
     </View>
   );
 };

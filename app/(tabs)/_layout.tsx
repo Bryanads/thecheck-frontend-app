@@ -10,7 +10,6 @@ export default function TabLayout() {
         tabBarIcon: ({ focused, color, size }) => {
           let iconName: React.ComponentProps<typeof Ionicons>['name'] = 'help-circle';
 
-          // Define os ícones para cada aba
           if (route.name === 'recommendations') {
             iconName = focused ? 'water' : 'water-outline';
           } else if (route.name === 'forecasts') {
@@ -21,7 +20,6 @@ export default function TabLayout() {
 
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        // Estilos baseados no seu Design System
         tabBarActiveTintColor: '#22d3ee',
         tabBarInactiveTintColor: '#94a3b8',
         tabBarStyle: {

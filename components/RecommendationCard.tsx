@@ -1,6 +1,6 @@
 // components/RecommendationCard.tsx
 import React from 'react';
-import { TouchableOpacity, View, Text } from 'react-native';
+import { TouchableOpacity, View, Text, StyleSheet } from 'react-native';
 import { Recommendation } from '../types';
 import { ScoreGauge } from './ScoreGauge';
 
@@ -16,14 +16,43 @@ export const RecommendationCard = ({ recommendation, onPress }: RecommendationCa
   return (
     <TouchableOpacity
       onPress={onPress}
-      className="bg-slate-800 rounded-lg p-4 flex-row items-center justify-between mb-4" // Cor de superfície #1e293b
+      style={styles.container}
     >
-      <View>
-        <Text className="text-white font-bold text-lg">{recommendation.spot_name}</Text>
-        <Text className="text-gray-400 text-base">{date.toLocaleDateString()}</Text>
-        <Text className="text-cyan-400 text-xl font-bold mt-1">{time}</Text> 
+      <View style={styles.content}>
+        <Text style={styles.spotName}>{recommendation.spot_name}</Text>
+        <Text style={styles.date}>{date.toLocaleDateString()}</Text>
+        <Text style={styles.time}>{time}</Text>
       </View>
       <ScoreGauge score={recommendation.overall_score} />
     </TouchableOpacity>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: '#1e293b',
+    borderRadius: 8,
+    padding: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  content: {
+    flex: 1,
+  },
+  spotName: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 18,
+  },
+  date: {
+    color: '#94a3b8',
+    fontSize: 16,
+  },
+  time: {
+    color: '#22d3ee',
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginTop: 4,
+  },
+});
