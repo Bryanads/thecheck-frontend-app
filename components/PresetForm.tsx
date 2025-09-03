@@ -39,6 +39,14 @@ export const PresetForm = ({ onClose, onSubmit, isSubmitting, preset }: PresetFo
     preset?.day_selection_values || (daySelectionType === 'offsets' ? [0] : [])
   );
 
+  // Horário
+  const [startTime, setStartTime] = useState(preset?.start_time || '');
+  const [endTime, setEndTime] = useState(preset?.end_time || '');
+  const [timePickerVisible, setTimePickerVisible] = useState<null | 'start' | 'end'>(null);
+
+  const HOURS = Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, '0'));
+  const MINUTES = Array.from({ length: 60 }, (_, i) => i.toString().padStart(2, '0'));
+
   const maxDayOffset = daySelectionValues.length > 0 ? Math.max(...daySelectionValues) : -1;
 
   const handleSetMaxDayOffset = (offset: number) => {
@@ -65,6 +73,13 @@ export const PresetForm = ({ onClose, onSubmit, isSubmitting, preset }: PresetFo
     return selectedNames.join(', ');
   };
 
+  const handleSelectTime = (hour: string, minute: string) => {
+    const time = `${hour}:${minute}`;
+    if (timePickerVisible === 'start') setStartTime(time);
+    else if (timePickerVisible === 'end') setEndTime(time);
+    setTimePickerVisible(null);
+  };
+
   const handleSubmit = () => {
     if (!name.trim()) {
       Alert.alert('Campo Obrigatório', 'Por favor, dê um nome ao seu preset.');
@@ -85,8 +100,8 @@ export const PresetForm = ({ onClose, onSubmit, isSubmitting, preset }: PresetFo
       is_default: isDefault,
       day_selection_type: daySelectionType,
       day_selection_values: daySelectionValues,
-      start_time: '', // placeholder
-      end_time: '',   // placeholder
+      start_time: startTime,
+      end_time: endTime,
     });
   };
 
@@ -192,12 +207,50 @@ export const PresetForm = ({ onClose, onSubmit, isSubmitting, preset }: PresetFo
           )}
         </View>
 
-        {/* Placeholder Janela de Horário */}
+        {/* Seletor de Horários */}
         <View style={styles.fieldContainer}>
           <Text style={styles.label}>Janela de Horário</Text>
-          <View style={styles.placeholderBox}>
-            <Text style={styles.placeholderText}>A implementar</Text>
+          <View style={{ flexDirection: 'row', gap: 16 }}>
+            <TouchableOpacity 
+              style={styles.timeBox} 
+              onPress={() => setTimePickerVisible('start')}
+            >
+              <Text style={styles.timeText}>{startTime || 'Início'}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.timeBox} 
+              onPress={() => setTimePickerVisible('end')}
+            >
+              <Text style={styles.timeText}>{endTime || 'Fim'}</Text>
+            </TouchableOpacity>
           </View>
+
+          {timePickerVisible && (
+            <View style={styles.timePickerContainer}>
+              <ScrollView style={styles.timeColumn}>
+                {HOURS.map(hour => (
+                  <TouchableOpacity
+                    key={hour}
+                    style={styles.timeItem}
+                    onPress={() => handleSelectTime(hour, '00')}
+                  >
+                    <Text style={styles.timeItemText}>{hour}</Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+              <ScrollView style={styles.timeColumn}>
+                {MINUTES.map(min => (
+                  <TouchableOpacity
+                    key={min}
+                    style={styles.timeItem}
+                    onPress={() => handleSelectTime('00', min)}
+                  >
+                    <Text style={styles.timeItemText}>{min}</Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
+          )}
         </View>
 
         {/* Preset Padrão */}
@@ -258,4 +311,24 @@ const styles = StyleSheet.create({
   counterSubtitle: { fontSize: 10, color: '#94a3b8', textAlign: 'center', marginTop: 2 },
   placeholderBox: { backgroundColor: '#1e293b', borderRadius: 8, padding: 16, alignItems: 'center', justifyContent: 'center' },
   placeholderText: { color: '#64748b', fontSize: 14, fontStyle: 'italic' },
+
+  // Estilos do seletor de horários
+  timeBox: { 
+    flex: 1, 
+    backgroundColor: '#1e293b', 
+    padding: 12, 
+    borderRadius: 8, 
+    alignItems: 'center' 
+  },
+  timeText: { color: '#e2e8f0', fontSize: 16 },
+  timePickerContainer: { 
+    flexDirection: 'row', 
+    marginTop: 8, 
+    backgroundColor: '#334155', 
+    borderRadius: 8, 
+    padding: 8 
+  },
+  timeColumn: { flex: 1, maxHeight: 150 },
+  timeItem: { padding: 12, alignItems: 'center' },
+  timeItemText: { color: '#e2e8f0', fontSize: 16 },
 });
