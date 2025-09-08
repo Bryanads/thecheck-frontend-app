@@ -13,16 +13,19 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack } from 'expo-router';
-import { usePresets, useCreatePreset } from '../../hooks';
-import { Preset, PresetCreate } from '../../types';
+import { usePresets, useCreatePreset, useUpdatePreset, useDeletePreset } from '../../hooks';
+import { Preset, PresetCreate, PresetUpdate } from '../../types';
 import { PresetForm } from '../../components/PresetForm';
 
 const PresetsScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
+  const [editingPreset, setEditingPreset] = useState<Preset | null>(null);
   const { data: presets, isLoading, refetch: refetchPresets } = usePresets();
   const { mutate: createPreset, isPending: isCreating } = useCreatePreset();
+  const { mutate: updatePreset, isPending: isUpdating } = useUpdatePreset();
+  const { mutate: deletePreset, isPending: isDeleting } = useDeletePreset();
 
-  const handleCreatePreset = (presetData: Omit<PresetCreate, 'user_id'>) => {
+  const handleCreatePreset = (presetData: PresetCreate) => {
     createPreset(presetData, {
       onSuccess: () => {
         setModalVisible(false);
@@ -35,6 +38,51 @@ const PresetsScreen = () => {
     });
   };
 
+  const handleUpdatePreset = (presetData: PresetUpdate) => {
+    if (!editingPreset) return;
+    updatePreset({ presetId: editingPreset.preset_id, updates: presetData }, {
+      onSuccess: () => {
+        setModalVisible(false);
+        setEditingPreset(null);
+        refetchPresets();
+        Alert.alert('Sucesso!', 'Preset atualizado com sucesso.');
+      },
+      onError: (error) => {
+        Alert.alert('Erro', error.message || 'Não foi possível atualizar o preset.');
+      }
+    });
+  };
+
+  const handleDeletePreset = (presetId: number) => {
+    Alert.alert(
+      'Remover Preset',
+      'Tem certeza que deseja remover este preset? Esta ação não pode ser desfeita.',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        { 
+          text: 'Remover',
+          style: 'destructive',
+          onPress: () => {
+            deletePreset(presetId, {
+              onSuccess: () => {
+                refetchPresets();
+                Alert.alert('Sucesso!', 'Preset removido com sucesso.');
+              },
+              onError: (error) => {
+                Alert.alert('Erro', error.message || 'Não foi possível remover o preset.');
+              }
+            });
+          }
+        }
+      ]
+    );
+  };
+
+  const openEditModal = (preset: Preset) => {
+    setEditingPreset(preset);
+    setModalVisible(true);
+  };
+
   const renderItem = ({ item }: { item: Preset }) => (
     <View style={styles.presetItem}>
       <View style={styles.presetInfo}>
@@ -43,9 +91,14 @@ const PresetsScreen = () => {
           <Ionicons name="star" size={16} color="#eab308" style={{ marginLeft: 8 }} />
         )}
       </View>
-      <TouchableOpacity>
-        <Ionicons name="ellipsis-vertical" size={20} color="#94a3b8" />
-      </TouchableOpacity>
+      <View style={styles.presetActions}>
+        <TouchableOpacity style={styles.actionButton} onPress={() => openEditModal(item)}>
+          <Ionicons name="create-outline" size={20} color="#22d3ee" />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.actionButton} onPress={() => handleDeletePreset(item.preset_id)}>
+          <Ionicons name="trash-outline" size={20} color="#ef4444" />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 
@@ -85,11 +138,16 @@ const PresetsScreen = () => {
         visible={modalVisible}
         animationType="slide"
         presentationStyle="pageSheet"
+        onDismiss={() => setEditingPreset(null)}
       >
         <PresetForm
-          onSubmit={handleCreatePreset}
-          onClose={() => setModalVisible(false)}
-          isSubmitting={isCreating}
+          preset={editingPreset || undefined}
+          onSubmit={editingPreset ? handleUpdatePreset : handleCreatePreset}
+          onClose={() => {
+            setModalVisible(false);
+            setEditingPreset(null);
+          }}
+          isSubmitting={isCreating || isUpdating}
         />
       </Modal>
     </SafeAreaView>
@@ -114,11 +172,19 @@ const styles = StyleSheet.create({
   presetInfo: {
     flexDirection: 'row',
     alignItems: 'center',
+    flex: 1,
   },
   presetName: {
     color: '#e2e8f0',
     fontSize: 16,
     fontWeight: '500',
+  },
+  presetActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  actionButton: {
+    marginLeft: 16,
   },
   footer: {
     padding: 16,
